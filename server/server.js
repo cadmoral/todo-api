@@ -7,6 +7,7 @@ const {Todo} = require('./models/todo');
 const {User} = require('./models/user');
 
 const app = express();
+const port = process.env.PORT || 3000;
 
 //Middleware in order to send json to
 // our express app. 
@@ -48,6 +49,23 @@ app.get('/todos/:id', (req, res) => {
     });
 });
 
-app.listen(3000, () => console.log('Started on Port 3K'));
+app.delete('/todos/:id', (req, res) =>{
+    var id = req.params.id;
+
+    if (!ObjectID.isValid(id)) {
+        return res.status(404).send();
+    }
+    Todo.findByIdAndRemove(id).then((todo) => {
+        if (!todo){
+            return res.status(404).send('No todo found')
+        } 
+        res.send({todo});
+    }).catch((error) => {
+        res.status(400).send(error);
+    });
+});
+
+
+app.listen(port, () => console.log(`Started on Port ${port}`));
 
 module.exports = {app};
